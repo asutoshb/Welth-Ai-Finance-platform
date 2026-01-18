@@ -37,3 +37,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 <img width="1728" height="1080" alt="image" src="https://github.com/user-attachments/assets/5256cc86-7df1-46bb-b5e5-0adcddffb4d3" />
 
+##  INNGEST
+npx inngest-cli@latest dev
+
+## Resend
+npx run email -> to check email template

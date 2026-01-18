@@ -52,7 +52,7 @@ export function AddTransactionForm({
   } = useForm({
     resolver: zodResolver(transactionSchema),
     defaultValues:
-      editMode && initialData
+      (editMode || editId) && initialData
         ? {
             type: initialData.type,
             amount: initialData.amount.toString(),
@@ -75,11 +75,13 @@ export function AddTransactionForm({
           },
   });
 
+  const isEditMode = editMode || !!editId;
+
   const {
     loading: transactionLoading,
     fn: transactionFn,
     data: transactionResult,
-  } = useFetch(editMode ? updateTransaction : createTransaction);
+  } = useFetch(isEditMode ? updateTransaction : createTransaction);
 
   const onSubmit = (data) => {
     const formData = {
@@ -87,7 +89,7 @@ export function AddTransactionForm({
       amount: parseFloat(data.amount),
     };
 
-    if (editMode) {
+    if (isEditMode) {
       transactionFn(editId, formData);
     } else {
       transactionFn(formData);
@@ -111,14 +113,14 @@ export function AddTransactionForm({
   useEffect(() => {
     if (transactionResult?.success && !transactionLoading) {
       toast.success(
-        editMode
+        isEditMode
           ? "Transaction updated successfully"
           : "Transaction created successfully"
       );
       reset();
       router.push(`/account/${transactionResult.data.accountId}`);
     }
-  }, [transactionResult, transactionLoading, editMode]);
+  }, [transactionResult, transactionLoading, isEditMode, reset, router]);
 
   const type = watch("type");
   const isRecurring = watch("isRecurring");
@@ -131,7 +133,7 @@ export function AddTransactionForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Receipt Scanner - Only show in create mode */}
-      {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
+      {!isEditMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
 
       {/* Type */}
       <div className="space-y-2">
@@ -318,9 +320,9 @@ export function AddTransactionForm({
           {transactionLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {editMode ? "Updating..." : "Creating..."}
+              {isEditMode ? "Updating..." : "Creating..."}
             </>
-          ) : editMode ? (
+          ) : isEditMode ? (
             "Update Transaction"
           ) : (
             "Create Transaction"
